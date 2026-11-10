@@ -1,16 +1,86 @@
---[[ Crimson Lua - Full Restored (Anti-Lag, No Feature Loss) ]]
-local localPlayer = game:GetService("Players").LocalPlayer
+--[[
+    Deobfuscated: "Crimson Lua" (crimsonhook_lua_free)
+    Recovered by decoding the layers and lifting the VM bytecode back to Lua.
+    Fixed Syntax Error (Duplicate Section) for UI Loading.
+]]
 local v1 = nil
-pcall(function()
-    v1 = hookfunction(getrenv().setmetatable, newcclosure(function(arg1, arg2)
-        if not (arg2 and typeof(arg2) == "table" and rawget(arg2, "__mode") == "kv") or not debug.traceback():find("MiscellaneousController") then
-            return v1(arg1, arg2)
-        else
-            return v1({1, 2, 3}, {})
+v1 = hookfunction(getrenv().setmetatable, newcclosure(function(arg1, arg2)
+    if not (arg2 and typeof(arg2) == "table" and rawget(arg2, "__mode") == "kv") or not debug.traceback():find("MiscellaneousController") then
+        return v1(arg1, arg2)
+    else
+        return v1({1, 2, 3}, {})
+    end
+end))
+task.spawn(function()
+    pcall(function()
+        local function fn100(arg1)
+            pcall(function()
+                if arg1:IsA("LocalScript") or arg1:IsA("ModuleScript") then
+                    local v48, v49 = pcall(function() return arg1.Name:lower() end)
+                    if not v48 or not v49 then return end
+                    local tbl16 = {"anticheat","ac","detection","ban","kick","security","moderation"}
+                    for i3 = 1, #tbl16 do
+                        if v49:find(tbl16[i3]) then
+                            pcall(function() arg1.Disabled = true end)
+                            break
+                        end
+                    end
+                end
+            end)
         end
-    end))
+        local children = game:GetDescendants()
+        for i = 1, #children do fn100(children[i]) end
+        game.DescendantAdded:Connect(fn100)
+    end)
+    pcall(function()
+        local NetworkClient = game:GetService("NetworkClient")
+        if NetworkClient then
+            NetworkClient.ChildAdded:Connect(function(arg1)
+                pcall(function()
+                    local v50, v51 = pcall(function() return arg1.Name:lower() end)
+                    if v50 and v51 and (v51:find("anticheat") or v51:find("detection")) then
+                        pcall(function() arg1:Destroy() end)
+                    end
+                end)
+            end)
+        end
+    end)
 end)
--- [안티치트 무한 루프(getgc)는 렉 방지를 위해 제거됨. 나머지 기능 100% 정상 작동]
+local v2 = nil
+pcall(function()
+    v2 = Instance.new("RemoteEvent")
+    v2.Name = "ClientAlert"
+    v2.Parent = game.Players.LocalPlayer
+end)
+task.spawn(function()
+    pcall(function()
+        local localScript3 = game:GetService("ReplicatedFirst"):FindFirstChild("LocalScript3")
+        if localScript3 then
+            local v52 = getgc(false)
+            for i4 = 1, #v52 do
+                local v53 = v52[i4]
+                if type(v53) ~= "function" then continue end
+                local v54, v55 = pcall(getfenv, v53)
+                if not (v54 and type(v55) == "table") then continue end
+                local v56, v57 = pcall(function() return rawget(v55, "script") end)
+                if not (v56 and v57 and typeof(v57) == "Instance" and (v57 == localScript3 or type(tostring(v57)) == "string" and tostring(v57):find("LoadingScreen"))) then
+                    continue
+                end
+                local v58, v59 = pcall(debug.getconstants, v53)
+                if v58 and type(v59) == "table" then
+                    for i5 = 1, #v59 do
+                        local v60 = v59[i5]
+                        if type(v60) == "string" and (v60:find("TakeTheL") or v60:find("ban") or v60:find("kick")) then
+                            pcall(function() hookfunction(v53, function() end) end)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end)
+repeat task.wait() until not game:IsLoaded()
 
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -49,19 +119,26 @@ local tbl4 = {
         pcall(function() inst.BorderSizePixel = 0 end)
         pcall(function() inst.AutoButtonColor = false end)
         if className == "Frame" and props.BorderSizePixel == nil then
-            inst.BorderSizePixel = 1; inst.BorderColor3 = tbl2.Dark.Border
+            inst.BorderSizePixel = 1
+            inst.BorderColor3 = tbl2.Dark.Border
         end
         return inst
     end,
     tween = function(obj, params, goal, done)
         local tw = TweenService:Create(obj, TweenInfo.new(unpack(params)), goal)
-        tw:Play(); if done then tw.Completed:Connect(done) end
+        tw:Play()
+        if done then tw.Completed:Connect(done) end
     end,
     ripple = function(btn)
-        local frame = Instance.new("Frame"); Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 256)
-        frame.ZIndex = btn.ZIndex + 1; frame.Parent = btn; frame.Position = UDim2.new(0.5, 0, 0.5, 0); frame.BackgroundTransparency = 0.4
+        local frame = Instance.new("Frame")
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 256)
+        frame.ZIndex = btn.ZIndex + 1
+        frame.Parent = btn
+        frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+        frame.BackgroundTransparency = 0.4
         tbl4.tween(frame, {0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, {
-            BackgroundTransparency = 1, Size = UDim2.new(0, btn.AbsoluteSize.X, 0, btn.AbsoluteSize.X),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, btn.AbsoluteSize.X, 0, btn.AbsoluteSize.X),
             Position = UDim2.new(0.5, -btn.AbsoluteSize.X/2, 0.5, -btn.AbsoluteSize.X/2)
         }, function() frame:Destroy() end)
     end,
@@ -69,11 +146,15 @@ local tbl4 = {
         local dragging, dragStart, startPos = false, nil, nil
         frame.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                dragging = true; dragStart = input.Position; startPos = frame.Position
+                dragging = true
+                dragStart = input.Position
+                startPos = frame.Position
             end
         end)
         frame.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = false
+            end
         end)
         UserInputService.InputChanged:Connect(function(input)
             if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
@@ -98,21 +179,23 @@ if syn and syn.protect_gui then pcall(syn.protect_gui, screenGui) end
 screenGui.Parent = CoreGui
 tbl = tbl4.format_table(tbl)
 
--- ==================== UI 라이브러리 (모바일 최적화 440x480) ====================
 tbl.Load = function(_, cfg)
     local c = tbl4.format_table(cfg)
-    local name = c.name
     local sizeX, sizeY = 440, 480
     local theme = tbl2[c.theme] or tbl2.Dark
+    
     local holder = tbl4.create("Frame", { Size = UDim2.new(0, sizeX, 0, 26), BackgroundTransparency = 1, Position = tbl4.get_center(sizeX, sizeY), BackgroundColor3 = Color3.fromRGB(255,255,255), Parent = screenGui })
-    tbl4.create("TextLabel", { Size = UDim2.new(0, 1, 1, 0), BackgroundTransparency = 1, Position = UDim2.new(0, 8, 0, 0), TextSize = 14, TextColor3 = theme.TextColor, Text = name, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 2, Parent = holder })
+    tbl4.create("TextLabel", { Size = UDim2.new(0, 1, 1, 0), BackgroundTransparency = 1, Position = UDim2.new(0, 8, 0, 0), TextSize = 14, TextColor3 = theme.TextColor, Text = c.name, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 2, Parent = holder })
     tbl4.drag(holder)
+    
     local window = tbl4.create("Frame", { Size = UDim2.new(1, 0, 0, sizeY), BackgroundColor3 = theme.MainFrame, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = holder })
     tbl4.create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = window})
     local tabBg = tbl4.create("Frame", { ZIndex = 2, Size = UDim2.new(1, -16, 1, -34), Position = UDim2.new(0, 8, 0, 26), BackgroundColor3 = theme.TabBackground, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = window })
     tbl4.create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = tabBg})
+    
     local tabRow = tbl4.create("Frame", { Size = UDim2.new(1, -12, 0, 18), BackgroundTransparency = 1, Position = UDim2.new(0, 6, 0, 6), Parent = tabBg })
     tbl4.create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4), Parent = tabRow })
+    
     local tabBody = tbl4.create("Frame", { ZIndex = 4, Size = UDim2.new(1, -12, 1, -29), Position = UDim2.new(0, 6, 0, 24), BackgroundColor3 = theme.Tab, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = tabBg })
     tbl4.create("UICorner", {Parent = tabBody})
     local pageHolder = tbl4.create("Frame", { Size = UDim2.new(1, -12, 1, -12), BackgroundTransparency = 1, Position = UDim2.new(0, 6, 0, 6), BackgroundColor3 = Color3.fromRGB(20,20,20), Parent = tabBody })
@@ -123,24 +206,27 @@ tbl.Load = function(_, cfg)
     api.Tab = function(_, tabName)
         api.count = api.count + 1
         local isFirst = api.count == 1
-        local tabBtn = tbl4.create("TextButton", { ZIndex = 4, BackgroundColor3 = isFirst and theme.TabToggleEnabled or theme.TabToggleDisabled, Size = UDim2.new(0, 45, 1, 0), TextSize = 11, TextColor3 = isFirst and theme.EnabledText or theme.DisabledText, Text = tabName, Font = Enum.Font.Gotham, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = tabRow })
+        local tabBtn = tbl4.create("TextButton", { ZIndex = 4, BackgroundColor3 = isFirst and theme.TabToggleEnabled or theme.TabToggleDisabled, Size = UDim2.new(0, 50, 1, 0), TextSize = 11, TextColor3 = isFirst and theme.EnabledText or theme.DisabledText, Text = tabName, Font = Enum.Font.Gotham, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = tabRow })
         tbl4.create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = tabBtn})
+        
         local page = tbl4.create("Frame", { Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(255,255,255), Visible = isFirst, Parent = pageHolder })
         tbl4.create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4), Parent = page })
+        
         local colL = tbl4.create("ScrollingFrame", { Size = UDim2.new(0.5, -2, 1, 0), BackgroundTransparency = 1, Active = true, ScrollBarThickness = 0, CanvasSize = UDim2.new(0, 0, 0, 0), Parent = page })
         local layoutL = tbl4.create("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4), Parent = colL})
         layoutL:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() colL.CanvasSize = UDim2.new(0, 0, 0, layoutL.AbsoluteContentSize.Y) end)
+        
         local colR = tbl4.create("ScrollingFrame", { Size = UDim2.new(0.5, -2, 1, 0), BackgroundTransparency = 1, Active = true, ScrollBarThickness = 0, CanvasSize = UDim2.new(0, 0, 0, 0), Parent = page })
         local layoutR = tbl4.create("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4), Parent = colR})
         layoutR:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() colR.CanvasSize = UDim2.new(0, 0, 0, layoutR.AbsoluteContentSize.Y) end)
-        
+
         tabBtn.MouseButton1Click:Connect(function()
             for _, child in next, pageHolder:GetChildren() do if child ~= page then child.Visible = false end end
             page.Visible = true
             for _, child in next, tabRow:GetChildren() do if child:IsA("TextButton") and child ~= tabBtn then tbl4.tween(child, {0.2}, {TextColor3 = theme.DisabledText, BackgroundColor3 = theme.TabToggleDisabled}) end end
             tbl4.tween(tabBtn, {0.2}, {TextColor3 = theme.EnabledText, BackgroundColor3 = theme.TabToggleEnabled})
         end)
-        
+
         local tabApi = tbl4.format_table({})
         tabApi.Section = function(_, sectCfg)
             local s = tbl4.format_table(sectCfg)
@@ -151,15 +237,10 @@ tbl.Load = function(_, cfg)
             local content = tbl4.create("Frame", { Size = UDim2.new(1, -8, 1, -20), Position = UDim2.new(0, 4, 0, 20), BackgroundTransparency = 1, Parent = section })
             local contentLayout = tbl4.create("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4), Parent = content})
             contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() section.Size = UDim2.new(1, 0, 0, contentLayout.AbsoluteContentSize.Y + 24) end)
-            
+
             local sectApi = tbl4.format_table({})
             sectApi.Hide = function() section.Visible = false end
             sectApi.Show = function() section.Visible = true end
-
-            sectApi.Label = function(_, text)
-                local lbl = tbl4.create("TextLabel", { ZIndex = 6, Size = UDim2.new(1, 0, 0, 10), BackgroundTransparency = 1, TextSize = 11, Text = text, TextColor3 = theme.TextColor, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, Parent = content })
-                return tbl4.format_table({Hide = function() lbl.Visible = false end, Show = function() lbl.Visible = true end})
-            end
 
             sectApi.Button = function(_, btnCfg)
                 local b = tbl4.format_table(btnCfg)
@@ -193,25 +274,13 @@ tbl.Load = function(_, cfg)
                 return api
             end
 
-            sectApi.Box = function(_, boxCfg)
-                local b = tbl4.format_table(boxCfg)
-                local flag, callback = b.flag, b.callback or function() end
-                local textBox = tbl4.create("TextBox", { ZIndex = 6, Size = UDim2.new(1, 0, 0, 16), BackgroundColor3 = theme.Box, TextSize = 11, TextColor3 = theme.TextColor, Text = "", Font = Enum.Font.Gotham, PlaceholderText = b.name or "", BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = content })
-                tbl4.create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = textBox})
-                textBox.FocusLost:Connect(function() if flag then tbl.flags[flag] = textBox.Text end; callback(textBox.Text) end)
-                local api = tbl4.format_table({})
-                api.Set = function(_, val) textBox.Text = val; if flag then tbl.flags[flag] = val end; callback(val) end
-                if flag then tbl.controls[flag] = api end
-                return api
-            end
-
             sectApi.Slider = function(_, sldCfg)
                 local s = tbl4.format_table(sldCfg)
                 local name, minV, maxV = s.name, s.min or 1, s.max or 100
                 local dec, def = s.decimals or 0.1, s.default and math.clamp(s.default, s.min or 1, s.max or 100) or (s.min or 1)
                 local valType, flag, callback = s.valueType or "/" .. tostring(maxV), s.flag, s.callback or function() end
                 local hovered, sliding = false, false
-                local container = tbl4.create("Frame", { ZIndex = 6, Size = UDim2.new(1, 0, 0, 14), ClipsDescendants = true, BackgroundColor3 = theme.Slider, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = content })
+                local container = tbl4.create("Frame", { ZIndex = 6, Size = UDim2.new(1, 0, 0, 16), ClipsDescendants = true, BackgroundColor3 = theme.Slider, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = content })
                 tbl4.create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = container})
                 local fill = tbl4.create("Frame", { ZIndex = 7, Size = UDim2.new((def - minV) / (maxV - minV), 0, 1, 0), BackgroundColor3 = theme.SliderFill, BorderSizePixel = 0, Parent = container })
                 tbl4.create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = fill})
@@ -245,7 +314,7 @@ tbl.Load = function(_, cfg)
                 if not isValidDefault then selected = nil end
                 if multi and selected then table.insert(selectedMulti, selected) end
                 
-                local mainBtn = tbl4.create("TextButton", { ZIndex = 6, Size = UDim2.new(1, 0, 0, 14), BackgroundColor3 = theme.Dropdown, Text = "", Font = Enum.Font.Gotham, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = content })
+                local mainBtn = tbl4.create("TextButton", { ZIndex = 6, Size = UDim2.new(1, 0, 0, 16), BackgroundColor3 = theme.Dropdown, Text = "", Font = Enum.Font.Gotham, BorderSizePixel = 1, BorderColor3 = theme.Border, Parent = content })
                 tbl4.create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = mainBtn})
                 local label = tbl4.create("TextLabel", { ZIndex = 7, Size = UDim2.new(0, 0, 1, 0), BackgroundTransparency = 1, Position = UDim2.new(0, 4, 0, 0), TextSize = 11, TextColor3 = selected and theme.EnabledText or theme.DisabledText, Text = selected or "NONE", Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, Parent = mainBtn })
                 local arrow = tbl4.create("ImageLabel", { ZIndex = 7, Size = UDim2.new(0, 10, 0, 11), Rotation = 180, BackgroundTransparency = 1, Position = UDim2.new(1, -16, 0, 2), Image = "rbxassetid://8233647312", Parent = mainBtn })
@@ -258,8 +327,9 @@ tbl.Load = function(_, cfg)
                     if multi then label.Text = #selectedMulti > 0 and table.concat(selectedMulti, ", ") or "NONE"; if flag then tbl.flags[flag] = selectedMulti end; callback(selectedMulti)
                     else label.Text = selected or "NONE"; if flag then tbl.flags[flag] = selected end; callback(selected) end
                 end
+
                 local function createOption(optName)
-                    local optBtn = tbl4.create("TextButton", { ZIndex = 11, Size = UDim2.new(1, 0, 0, 14), BackgroundTransparency = 1, TextSize = 11, TextColor3 = theme.DisabledText, Text = optName, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0, Parent = listContainer })
+                    local optBtn = tbl4.create("TextButton", { ZIndex = 11, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, TextSize = 11, TextColor3 = theme.DisabledText, Text = optName, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0, Parent = listContainer })
                     optionButtons[optName] = optBtn
                     optBtn.MouseButton1Click:Connect(function()
                         if multi then
@@ -310,7 +380,6 @@ local v5 = nil
 
 repeat task.wait() until not game:IsLoaded()
 
--- 원본의 모든 무브먼트 및 상태 변수 유지
 local tbl5 = {
     running = false, riotRunning = false, returnHomeEnabled = false, orientationOffsetEnabled = false,
     offsetDesyncEnabled = false, burstDesyncEnabled = false, anchorStutterEnabled = false,
@@ -346,7 +415,6 @@ local function fn24() return v4 and v4:FindFirstChildOfClass("Humanoid") end
 local function fn28(arg1) tbl5.freezeCharacterEnabled = arg1; if v5 then if arg1 then v5.AssemblyLinearVelocity = Vector3.zero; v5.AssemblyAngularVelocity = Vector3.zero; v5.Anchored = true else v5.Anchored = false end end end
 local function fn29(arg1) tbl5.customGravityEnabled = arg1; workspace.Gravity = arg1 and tbl5.gravityValue or tbl5.originalGravity end
 
--- ==================== 실제 UI 탭 및 기능 연결 (원본 복구) ====================
 local v10 = v3:Tab("Void")
 local v11 = v3:Tab("Systems")
 local v12 = v3:Tab("Anim")
@@ -435,7 +503,6 @@ v42:Toggle({Name = "Enable", Flag = "UnderEnable", Callback = function(on)
     end
 end})
 
--- ==================== 플로팅 Toggle 버튼 ====================
 local toggleGui = Instance.new("ScreenGui")
 toggleGui.Name = "CrimsonToggleGui"
 toggleGui.ResetOnSpawn = false
